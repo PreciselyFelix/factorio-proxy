@@ -58,6 +58,8 @@ def handle_message(message: bytes) -> None:
             decoded_payload = handle_transfer_block(payload)
         case MessageType.ServerToClientHeartbeat:
             decoded_payload = handle_server_to_client_heartbeat(payload)
+        case MessageType.ClientToServerHeartbeat:
+            decoded_payload = handle_client_to_server_heartbeat(payload)
         case _:
             raise NotImplementedError(f"Message type not implemented {message_type}!")
     if decoded_payload is not None:
@@ -87,7 +89,7 @@ def handle_server_to_client_heartbeat(payload: BitStream) -> Dict[str, Any]:
         tick_closures = []
         if flags["has_single_tick_closure"]:
             if not flags["all_tick_closures_are_empty"]:
-                tick_closure, rest_payload = decode_single_server_tick_closure(payload[payload.pos:])
+                tick_closure, rest_payload = decode_single_tick_closure(payload[payload.pos:])
                 tick_closures.append(tick_closure)
                 payload = rest_payload
             else:
@@ -96,6 +98,46 @@ def handle_server_to_client_heartbeat(payload: BitStream) -> Dict[str, Any]:
             raise NotImplementedError("Decoding multiple tick closures in ServerToClientHeartbeat not implemented")
         return {"flags": flags, "sequence_number": sequence_number, "tick_closures": tick_closures}
     return {"flags": flags, "sequence_number": sequence_number}
+
+def handle_client_to_server_heartbeat(payload: BitStream) -> Dict[str, Any]:
+    # decode flags
+    flags_byte = payload.read("bits8")
+    flags = decode_heartbeat_flags(flags_byte)
+
+    # decode sequence number
+    sequence_number = payload.read("uintle32")
+
+    # decode tick closures
+    if flags["has_tick_closures"]:
+        tick_closures = []
+        if flags["has_single_tick_closure"]:
+            if not flags["all_tick_closures_are_empty"]:
+                tick_closure, rest_payload = decode_single_tick_closure(payload[payload.pos:])
+                tick_closures.append(tick_closure)
+                payload = rest_payload
+            else:
+                tick_closure, rest_payload = decode_empty_tick_closure(payload[payload.pos:])
+                tick_closures.append(tick_closure)
+                payload = rest_payload
+        else:
+            if flags["all_tick_closures_are_empty"]:
+                amount_of_tick_closures = payload.read("uintle8")
+                for _ in range(amount_of_tick_closures):
+                    tick_closure, rest_payload = decode_empty_tick_closure(payload[payload.pos:])
+                    tick_closures.append(tick_closure)
+                    payload = rest_payload
+            else:
+                raise NotImplementedError("Decoding multiple non empty tick closures in ClientToServerHeartbeat not implemented")
+        
+    # get nextToRecieveServerTickClosure
+    next_to_receive_server_tick_closure = payload.read("uintle32")
+
+    # TODO decode synchronizer actions
+
+    return_dict = {"flags": flags, "sequence_number": sequence_number, "next_to_receive_server_tick_closure": next_to_receive_server_tick_closure}
+    if flags["has_tick_closures"]:
+        return_dict["tick_closures"] = tick_closures
+    return return_dict
 
 def decode_heartbeat_flags(flags_byte: BitStream) -> Dict[str, bool]:
     _, has_synchronizer_action, all_tick_closures_are_empty, has_single_tick_closure, has_tick_closures, has_heartbeat_requests = flags_byte.readlist("b3, bool, bool, bool, bool, bool")
@@ -107,7 +149,11 @@ def decode_heartbeat_flags(flags_byte: BitStream) -> Dict[str, bool]:
         "has_heartbeat_requests": has_heartbeat_requests
     }
 
-def decode_single_server_tick_closure(payload: BitStream) -> Tuple[Dict[str, Any], BitStream]:
+def decode_empty_tick_closure(payload: BitStream) -> Tuple[Dict[str, Any], BitStream]:
+    update_tick = payload.read("uintle32")
+    return {"update_tick": update_tick}, payload[payload.pos:]
+
+def decode_single_tick_closure(payload: BitStream) -> Tuple[Dict[str, Any], BitStream]:
     update_tick = payload.read("uintle32")
     input_actions, rest_payload = decode_input_actions(payload[payload.pos:])
 
@@ -128,9 +174,9 @@ def decode_single_input_action(rest_payload: BitStream) -> Tuple[Dict[str, Any],
     maybe_player_index = rest_payload.read("uintle8")
     lookup_table_entry = INPUT_ACTION_LOOKUP_TABLE[input_action_type]
     if lookup_table_entry["length"] is None:
-        raise NotImplementedError(f"Can not decode input action {input_action_type}, because length is unknown")
+        raise NotImplementedError(f"Can not decode input action {input_action_type}, because length is unknown! Payload: {rest_payload[rest_payload.pos:]}")
     elif lookup_table_entry["decoder"] is None:
-        raise NotImplementedError(f"No decoder implemented for input action {input_action_type}")
+        raise NotImplementedError(f"No decoder implemented for input action {input_action_type}! Payload: {rest_payload[rest_payload.pos:rest_payload.pos+(lookup_table_entry["length"])*8]}")
     else:
         input_action_data, rest_payload = lookup_table_entry["decoder"](rest_payload[rest_payload.pos:])
         return {"input_action_type": input_action_type, "maybe_player_index": maybe_player_index, "input_action_data": input_action_data}, rest_payload
