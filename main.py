@@ -61,9 +61,9 @@ def handle_message(message: bytes) -> None:
         case _:
             raise NotImplementedError(f"Message type not implemented {message_type}!")
     if decoded_payload is not None:
-        LOGGER.info(f"{message_type}: {decoded_payload}")
+        LOGGER.debug(f"{message_type}: {decoded_payload}")
     else:
-        LOGGER.info(message_type)
+        LOGGER.debug(message_type)
             
 def handle_transfer_block_request(payload: BitStream) -> Dict[str, Any]:
     block_number = payload.read("uintle32")
@@ -84,14 +84,17 @@ def handle_server_to_client_heartbeat(payload: BitStream) -> Dict[str, Any]:
 
     # decode tick closures
     if flags["has_tick_closures"]:
+        tick_closures = []
         if flags["has_single_tick_closure"]:
             if not flags["all_tick_closures_are_empty"]:
                 tick_closure, rest_payload = decode_single_server_tick_closure(payload[payload.pos:])
+                tick_closures.append(tick_closure)
+                payload = rest_payload
             else:
                 raise NotImplementedError("Decoding single empty tick closure in ServerToClientHeartbeat not implemented")
         else:
             raise NotImplementedError("Decoding multiple tick closures in ServerToClientHeartbeat not implemented")
-
+        return {"flags": flags, "sequence_number": sequence_number, "tick_closures": tick_closures}
     return {"flags": flags, "sequence_number": sequence_number}
 
 def decode_heartbeat_flags(flags_byte: BitStream) -> Dict[str, bool]:
@@ -121,14 +124,16 @@ def decode_input_actions(payload: BitStream) -> Tuple[List[Dict[str, Any]], BitS
     return input_actions, rest_payload
 
 def decode_single_input_action(rest_payload: BitStream) -> Tuple[Dict[str, Any], BitStream]:
-    input_action_type = InputAction(rest_payload.read("uint8"))
+    input_action_type = InputAction(rest_payload.read("uintle8"))
+    maybe_player_index = rest_payload.read("uintle8")
     lookup_table_entry = INPUT_ACTION_LOOKUP_TABLE[input_action_type]
     if lookup_table_entry["length"] is None:
         raise NotImplementedError(f"Can not decode input action {input_action_type}, because length is unknown")
     elif lookup_table_entry["decoder"] is None:
         raise NotImplementedError(f"No decoder implemented for input action {input_action_type}")
     else:
-        return lookup_table_entry["decoder"](rest_payload[rest_payload.pos:])
+        input_action_data, rest_payload = lookup_table_entry["decoder"](rest_payload[rest_payload.pos:])
+        return {"input_action_type": input_action_type, "maybe_player_index": maybe_player_index, "input_action_data": input_action_data}, rest_payload
 
 
 
@@ -145,9 +150,9 @@ if __name__ == "__main__":
             try:
                 handle_message(data)
             except NotImplementedError as e:
-                LOGGER.debug(e)
+                LOGGER.info(e)
             except Exception as e:
-                LOGGER.error("Unexpected Error during decoding. " + e)
+                LOGGER.error(f"Unexpected Error during decoding. {e}")
             if address != server_address:
                 client_address = address
                 proxy_socket.sendto(data, server_address)

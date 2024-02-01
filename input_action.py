@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Any, Dict
+from typing import Any, Dict, Tuple
 from bitstring import BitStream
 
 class InputAction(Enum):
@@ -254,6 +254,12 @@ class InputAction(Enum):
     GuiHover = 248
     GuiLeave = 249
 
+
+def decode_check_crc_heuristic(payload: BitStream) -> Tuple[Dict[str, Any], BitStream]:
+    crc, tick_of_crc = payload.readlist("uintle32, uintle32")
+
+    return {"crc": crc, "tick_of_crc": tick_of_crc}, payload[payload.pos:]
+
 INPUT_ACTION_LOOKUP_TABLE = {
     InputAction.Nothing                                         : {"index":   0, "length":     0, "decoder": None},
     InputAction.StopWalking                                     : {"index":   1, "length":     0, "decoder": None},
@@ -329,7 +335,7 @@ INPUT_ACTION_LOOKUP_TABLE = {
     InputAction.CursorSplit                                     : {"index":  71, "length":     5, "decoder": None},
     InputAction.StackTransfer                                   : {"index":  72, "length":     5, "decoder": None},
     InputAction.InventoryTransfer                               : {"index":  73, "length":     5, "decoder": None},
-    InputAction.CheckCRCHeuristic                               : {"index":  74, "length":  None, "decoder": None},
+    InputAction.CheckCRCHeuristic                               : {"index":  74, "length":    11, "decoder": decode_check_crc_heuristic},
     InputAction.Craft                                           : {"index":  75, "length":     5, "decoder": None},
     InputAction.WireDragging                                    : {"index":  76, "length":     8, "decoder": None},
     InputAction.ChangeShootingState                             : {"index":  77, "length":     9, "decoder": None},
@@ -507,9 +513,6 @@ INPUT_ACTION_LOOKUP_TABLE = {
     InputAction.GuiLeave                                        : {"index": 249, "length":  None, "decoder": None},
 }
 
-
-def decode_check_crc_heuristic(payload: BitStream) -> Dict[str, Any]:
-    pass
 
 def print_updated_lookup_table():
     print("{")
