@@ -260,6 +260,22 @@ def decode_check_crc_heuristic(payload: BitStream) -> Tuple[Dict[str, Any], BitS
 
     return {"crc": crc, "tick_of_crc": tick_of_crc}, payload[payload.pos:]
 
+class Direction(Enum):
+    North = 0
+    NorthEast = 1
+    East = 2
+    SouthEast = 3
+    South = 4
+    SouthWest = 5
+    West = 6
+    NorthWest = 7
+
+def decode_start_walking(payload: BitStream) -> Tuple[Dict[str, Any], BitStream]:
+    direction_id = payload.read("uintle8")
+    direction = Direction(direction_id)
+
+    return {"direction": direction}, payload[payload.pos:]
+
 INPUT_ACTION_LOOKUP_TABLE = {
     InputAction.Nothing                                         : {"index":   0, "length":     0, "decoder": None},
     InputAction.StopWalking                                     : {"index":   1, "length":     0, "decoder": None},
@@ -322,7 +338,7 @@ INPUT_ACTION_LOOKUP_TABLE = {
     InputAction.ChangeBlueprintLibraryTab                       : {"index":  58, "length":     3, "decoder": None},
     InputAction.DropItem                                        : {"index":  59, "length":     8, "decoder": None},
     InputAction.Build                                           : {"index":  60, "length":     5, "decoder": None},
-    InputAction.StartWalking                                    : {"index":  61, "length":     1, "decoder": None},
+    InputAction.StartWalking                                    : {"index":  61, "length":     1, "decoder": decode_start_walking},
     InputAction.BeginMiningTerrain                              : {"index":  62, "length":     8, "decoder": None},
     InputAction.ChangeRidingState                               : {"index":  63, "length":     2, "decoder": None},
     InputAction.OpenItem                                        : {"index":  64, "length":     5, "decoder": None},
