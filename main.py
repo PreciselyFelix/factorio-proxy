@@ -196,12 +196,6 @@ if __name__ == "__main__":
 
         while True:
             original_data, address = proxy_socket.recvfrom(1024)
-            # try:
-                # handle_message(data)
-            # except NotImplementedError as e:
-            #     LOGGER.info(e)
-            # except Exception as e:
-                # LOGGER.error(f"Unexpected Error during decoding. {e}")
             try:
                 network_message = NetworkMessage.from_bitstream(BitStream(original_data))
                 reconstructed_data = network_message.to_bitstream()
