@@ -14,10 +14,11 @@ class InputAction:
     @classmethod
     def from_bitstream(cls, bit_stream: BitStream):
         input_action_type = InputActionType(bit_stream.read("uintle8"))
-        input_action_payload = cls.decode_input_action(input_action_type, bit_stream)
+        input_action_payload = cls.decode_input_action(
+            input_action_type, bit_stream)
 
         return cls(input_action_type, input_action_payload)
-    
+
     @classmethod
     def decode_input_action(cls, input_action_type: InputActionType, bit_stream: BitStream) -> InputActionPayload:
         match input_action_type:
@@ -28,7 +29,8 @@ class InputAction:
             case InputActionType.CheckCRCHeuristic:
                 return CheckCRCHeuristicPayload.from_bitstream(bit_stream)
             case _:
-                raise NotImplementedError(f"Decoding of InputActionType {input_action_type}-Payload not implemented.")
+                raise NotImplementedError(f"Decoding of InputActionType {
+                                          input_action_type} not implemented.")
 
     def to_bitstream(self) -> BitStream:
         return_stream = BitStream(f"uintle8={self.input_action_type.value}")

@@ -1,4 +1,4 @@
-from message_payload import TransferBlockPayload, TransferBlockRequestPayload
+from message_payload import ClientToServerHeartbeatPayload, TransferBlockPayload, TransferBlockRequestPayload
 
 from bitstring import BitStream
 
@@ -9,8 +9,17 @@ def test_transfer_block_payload_transparancy() -> None:
     example_output = payload.to_bitstream()
     assert example_input == example_output
 
+
 def test_transfer_block_request_payload_transparancy() -> None:
     example_input = BitStream(bytes.fromhex("18000000"))
     payload = TransferBlockRequestPayload.from_bitstream(example_input)
+    example_output = payload.to_bitstream()
+    assert example_input == example_output
+
+
+def test_multiple_tick_closures() -> None:
+    example_input = BitStream(bytes.fromhex(
+        "0a3de0500e038e7500008f7500009075000082750000"))
+    payload = ClientToServerHeartbeatPayload.from_bitstream(example_input)
     example_output = payload.to_bitstream()
     assert example_input == example_output

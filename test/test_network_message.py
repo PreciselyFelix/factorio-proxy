@@ -13,30 +13,50 @@ def test_transfer_block_message_transparancy():
     example_output = example_network_message.to_bitstream()
     assert example_input == example_output
 
+
 def test_empty_server_to_client_heartbeat_transparancy():
     example_input = BitStream(bytes.fromhex("070044730100"))
     example_network_message = NetworkMessage.from_bitstream(example_input)
     example_output = example_network_message.to_bitstream()
     assert example_input == example_output
 
+
 def test_single_tick_closure_server_to_client_heartbeat_transparancy() -> None:
-    example_input = BitStream(bytes.fromhex("07064e7301009f140000024a000abeaa7c9e140000"))
+    example_input = BitStream(bytes.fromhex(
+        "07064e7301009f140000024a000abeaa7c9e140000"))
     example_network_message = NetworkMessage.from_bitstream(example_input)
     example_output = example_network_message.to_bitstream()
     assert example_input == example_output
 
+
 def test_input_action_segment_throws_error() -> None:
     with pytest.raises(NotImplementedError):
-        example_input = BitStream(bytes.fromhex("270610520000f0120000034a00f62431c2ef12000001860000000000010010000000000000001065b3650000000000"))
+        example_input = BitStream(bytes.fromhex(
+            "270610520000f0120000034a00f62431c2ef12000001860000000000010010000000000000001065b3650000000000"))
         example_network_message = NetworkMessage.from_bitstream(example_input)
         example_output = example_network_message.to_bitstream()
         assert example_input == example_output
 
+
 def test_stop_walking_injection():
-    example_input = BitStream(bytes.fromhex("26061372502da0370000023d010289370000"))
+    example_input = BitStream(bytes.fromhex(
+        "26061372502da0370000023d010289370000"))
     example_network_message = NetworkMessage.from_bitstream(example_input)
-    
-    example_input_action = InputAction(InputActionType.StopWalking, StopWalkingPayload(0))
+
+    example_input_action = InputAction(
+        InputActionType.StopWalking, StopWalkingPayload(0))
     example_network_message.inject_input_action(example_input_action)
     example_output = example_network_message.to_bitstream()
     assert example_input != example_output
+
+def test_single_synchronizer_action_s_to_c():
+    example_input = BitStream(bytes.fromhex("27100b2208000109c11800"))
+    example_network_message = NetworkMessage.from_bitstream(example_input)
+    example_output = example_network_message.to_bitstream()
+    assert example_input == example_output
+
+def test_single_synchronizer_action_c_to_s():
+    example_input = BitStream(bytes.fromhex("2610d4c8a915947500000109a3"))
+    example_network_message = NetworkMessage.from_bitstream(example_input)
+    example_output = example_network_message.to_bitstream()
+    assert example_input == example_output

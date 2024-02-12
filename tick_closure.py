@@ -22,7 +22,7 @@ class TickClosure:
             for _ in range(amount_of_input_actions):
                 input_actions.append(InputAction.from_bitstream(bit_stream))
         return cls(update_tick, input_actions)
-    
+
     def to_bitstream(self) -> BitStream:
         return_stream = BitStream(f"uintle32={self.update_tick}")
         if not len(self.input_actions) == 0:

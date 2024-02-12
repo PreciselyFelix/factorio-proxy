@@ -1,5 +1,6 @@
 from enum import Enum
 
+
 class MessageType(Enum):
     Ping = 0
     PingReply = 1
