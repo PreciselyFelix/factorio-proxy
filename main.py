@@ -4,7 +4,7 @@ import socket
 import logging.config
 from typing import Any, Dict, List, Tuple
 from bitstring import BitStream
-from input_action import INPUT_ACTION_LOOKUP_TABLE, InputAction
+from input_action_type import INPUT_ACTION_LOOKUP_TABLE, InputActionType
 
 from message_type import MessageType
 
@@ -170,7 +170,7 @@ def decode_input_actions(payload: BitStream) -> Tuple[List[Dict[str, Any]], BitS
     return input_actions, rest_payload
 
 def decode_single_input_action(rest_payload: BitStream) -> Tuple[Dict[str, Any], BitStream]:
-    input_action_type = InputAction(rest_payload.read("uintle8"))
+    input_action_type = InputActionType(rest_payload.read("uintle8"))
     maybe_player_index = rest_payload.read("uintle8")
     lookup_table_entry = INPUT_ACTION_LOOKUP_TABLE[input_action_type]
     if lookup_table_entry["length"] is None:
