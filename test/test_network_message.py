@@ -33,9 +33,10 @@ def test_input_action_segment_throws_error() -> None:
         assert example_input == example_output
 
 def test_stop_walking_injection():
-    example_input = BitStream(bytes.fromhex("07064e7301009f140000024a000abeaa7c9e140000"))
+    example_input = BitStream(bytes.fromhex("26061372502da0370000023d010289370000"))
     example_network_message = NetworkMessage.from_bitstream(example_input)
     
     example_input_action = InputAction(InputActionType.StopWalking, StopWalkingPayload(0))
     example_network_message.inject_input_action(example_input_action)
     example_output = example_network_message.to_bitstream()
+    assert example_input != example_output

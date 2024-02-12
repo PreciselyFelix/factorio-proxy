@@ -1,6 +1,8 @@
 from bitstring import BitStream
 from input_action import InputAction
-from message_payload import MessagePayload, ServerToClientHeartbeatPayload, TransferBlockPayload, TransferBlockRequestPayload
+from input_action_payload import StopWalkingPayload
+from input_action_type import InputActionType
+from message_payload import ClientToServerHeartbeatPayload, MessagePayload, ServerToClientHeartbeatPayload, TransferBlockPayload, TransferBlockRequestPayload
 from message_type import MessageType
 
 
@@ -42,7 +44,7 @@ class NetworkMessage:
             case MessageType.ConnectionAcceptOrDeny:
                 raise NotImplementedError(f"Decoding of MessageType {message_type}-Payload not implemented.")
             case MessageType.ClientToServerHeartbeat:
-                raise NotImplementedError(f"Decoding of MessageType {message_type}-Payload not implemented.")
+                return ClientToServerHeartbeatPayload.from_bitstream(bit_stream)
             case MessageType.ServerToClientHeartbeat:
                 return ServerToClientHeartbeatPayload.from_bitstream(bit_stream)
             case MessageType.GetOwnAddress:
@@ -76,8 +78,8 @@ class NetworkMessage:
         return return_stream
     
     def inject_input_action(self, input_action: InputAction) -> None:
-        if not self.network_message_type == MessageType.ServerToClientHeartbeat:
-            raise NotImplementedError("Injection only implemented for server to client heartbeat.")
+        if not self.network_message_type == MessageType.ClientToServerHeartbeat:
+            raise NotImplementedError("Injection only implemented for client to server heartbeat.")
         if not self.message_payload.has_tick_closures:
             raise NotImplementedError("Can only inject into messages that have tick closures.")
         if self.message_payload.all_tick_closures_are_empty:
@@ -86,8 +88,10 @@ class NetworkMessage:
 
 
 if __name__ == "__main__":
-    example_bitstream = BitStream(bytes.fromhex("270698be0100871700000401014affffffa00effc786170000"))
-    example_network_message = NetworkMessage.from_bitstream(example_bitstream)
-    print(example_network_message)
-    print(example_network_message.network_message_type)
-    print(example_network_message.message_payload)
+    example_input = BitStream(bytes.fromhex("26061372502da0370000023d010289370000"))
+    example_network_message = NetworkMessage.from_bitstream(example_input)
+    
+    example_input_action = InputAction(InputActionType.StopWalking, StopWalkingPayload(0))
+    example_network_message.inject_input_action(example_input_action)
+    example_output = example_network_message.to_bitstream()
+    assert example_input != example_output

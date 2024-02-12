@@ -214,8 +214,11 @@ if __name__ == "__main__":
                 else:
                     try:
                         network_message.inject_input_action(InputAction(InputActionType.StopWalking, StopWalkingPayload(0)))
+                        LOGGER.info(f"network message input actions: {network_message.message_payload.tick_closures[0].input_actions}")
                         reconstructed_data = network_message.to_bitstream()
                         reconstructed_data = reconstructed_data.tobytes()
+                    except NotImplementedError as e:
+                        LOGGER.debug(f"Decoding of message not implemented: {e}")
                     except Exception as e:
                         LOGGER.error(f"Error during injection: {type(e)}, {e}")
             except NotImplementedError as e:

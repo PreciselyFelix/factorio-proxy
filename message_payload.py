@@ -111,3 +111,70 @@ class ServerToClientHeartbeatPayload(MessagePayload):
                 return_stream += tick_closure.to_bitstream()
 
         return return_stream
+    
+class ClientToServerHeartbeatPayload(MessagePayload):
+    has_synchronizer_action: bool
+    all_tick_closures_are_empty: bool
+    has_single_tick_closure: bool
+    has_tick_closures: bool
+    has_heartbeat_requests: bool
+    sequence_number = int
+    tick_closures = List[TickClosure]
+    next_to_receive_server_tick_closure = int
+    # TODO synchronizer actions
+
+    def __init__(
+            self, 
+            has_synchronizer_action: bool, 
+            all_tick_closures_are_empty: bool, 
+            has_single_tick_closure: bool, 
+            has_tick_closures: bool, 
+            has_heartbeat_requests: bool, 
+            sequence_number: int, 
+            tick_closures: List[TickClosure],
+            next_to_receive_server_tick_closure: int
+            ) -> None:
+        self.has_synchronizer_action = has_synchronizer_action
+        self.all_tick_closures_are_empty = all_tick_closures_are_empty
+        self.has_single_tick_closure = has_single_tick_closure
+        self.has_tick_closures = has_tick_closures
+        self.has_heartbeat_requests = has_heartbeat_requests
+        self.sequence_number = sequence_number
+        self.tick_closures = tick_closures
+        self.next_to_receive_server_tick_closure = next_to_receive_server_tick_closure
+
+    @classmethod
+    def from_bitstream(cls, bit_stream: BitStream):
+        _, has_synchronizer_action, all_tick_closures_are_empty, has_single_tick_closure, has_tick_closures, has_heartbeat_requests = bit_stream.readlist("b3, bool, bool, bool, bool, bool")
+        sequence_number = bit_stream.read("uintle32")
+
+        tick_closures = []
+
+        if has_tick_closures:
+            if has_single_tick_closure:
+                tick_closures.append(TickClosure.from_bitstream(bit_stream, all_tick_closures_are_empty))
+            else:
+                raise NotImplementedError("decoding of multiple tick closures not implemented.")
+            
+        if has_synchronizer_action:
+            raise NotImplementedError("decoding of synchronizer actions is not implemented.")
+        
+        if has_heartbeat_requests:
+            raise NotImplementedError("decoding of heartbeat requests is not implemented.")
+        
+        next_to_receive_server_tick_closure = bit_stream.read("uintle32")
+
+        return cls(has_synchronizer_action, all_tick_closures_are_empty, has_single_tick_closure, has_tick_closures, has_heartbeat_requests, sequence_number, tick_closures, next_to_receive_server_tick_closure)
+
+
+    def to_bitstream(self) -> BitStream:
+        return_stream = BitStream(f"b3=0b000, bool={self.has_synchronizer_action}, bool={self.all_tick_closures_are_empty}, bool={self.has_single_tick_closure}, bool={self.has_tick_closures}, bool={self.has_heartbeat_requests}")
+        return_stream += BitStream(self.sequence_number.to_bytes(4, "little"))
+        if self.has_tick_closures:
+            if not self.has_single_tick_closure:
+                raise NotImplementedError("encoding of multiple tick closures not implemented")
+            for tick_closure in self.tick_closures:
+                return_stream += tick_closure.to_bitstream()
+        return_stream += BitStream(f"uintle32={self.next_to_receive_server_tick_closure}")
+
+        return return_stream
