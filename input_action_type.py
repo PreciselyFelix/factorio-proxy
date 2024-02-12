@@ -1,8 +1,4 @@
 from enum import Enum
-from typing import Any, Dict, Tuple
-from bitstring import BitStream
-
-from direction import Direction
 
 class InputActionType(Enum):
     Nothing = 0
@@ -257,18 +253,6 @@ class InputActionType(Enum):
     GuiLeave = 249
 
 
-def decode_check_crc_heuristic(payload: BitStream) -> Tuple[Dict[str, Any], BitStream]:
-    crc, tick_of_crc = payload.readlist("uintle32, uintle32")
-
-    return {"crc": crc, "tick_of_crc": tick_of_crc}, payload[payload.pos:]
-
-
-def decode_start_walking(payload: BitStream) -> Tuple[Dict[str, Any], BitStream]:
-    direction_id = payload.read("uintle8")
-    direction = Direction(direction_id)
-
-    return {"direction": direction}, payload[payload.pos:]
-
 INPUT_ACTION_LOOKUP_TABLE = {
     InputActionType.Nothing                                         : {"index":   0, "length":     0, "decoder": None},
     InputActionType.StopWalking                                     : {"index":   1, "length":     0, "decoder": None},
@@ -331,7 +315,7 @@ INPUT_ACTION_LOOKUP_TABLE = {
     InputActionType.ChangeBlueprintLibraryTab                       : {"index":  58, "length":     3, "decoder": None},
     InputActionType.DropItem                                        : {"index":  59, "length":     8, "decoder": None},
     InputActionType.Build                                           : {"index":  60, "length":     5, "decoder": None},
-    InputActionType.StartWalking                                    : {"index":  61, "length":     1, "decoder": decode_start_walking},
+    InputActionType.StartWalking                                    : {"index":  61, "length":     1, "decoder": None},
     InputActionType.BeginMiningTerrain                              : {"index":  62, "length":     8, "decoder": None},
     InputActionType.ChangeRidingState                               : {"index":  63, "length":     2, "decoder": None},
     InputActionType.OpenItem                                        : {"index":  64, "length":     5, "decoder": None},
@@ -344,7 +328,7 @@ INPUT_ACTION_LOOKUP_TABLE = {
     InputActionType.CursorSplit                                     : {"index":  71, "length":     5, "decoder": None},
     InputActionType.StackTransfer                                   : {"index":  72, "length":     5, "decoder": None},
     InputActionType.InventoryTransfer                               : {"index":  73, "length":     5, "decoder": None},
-    InputActionType.CheckCRCHeuristic                               : {"index":  74, "length":    11, "decoder": decode_check_crc_heuristic},
+    InputActionType.CheckCRCHeuristic                               : {"index":  74, "length":    11, "decoder": None},
     InputActionType.Craft                                           : {"index":  75, "length":     5, "decoder": None},
     InputActionType.WireDragging                                    : {"index":  76, "length":     8, "decoder": None},
     InputActionType.ChangeShootingState                             : {"index":  77, "length":     9, "decoder": None},
