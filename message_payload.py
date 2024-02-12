@@ -87,8 +87,16 @@ class ServerToClientHeartbeatPayload(MessagePayload):
         if has_tick_closures:
             if has_single_tick_closure:
                 tick_closures.append(TickClosure.from_bitstream(bit_stream, all_tick_closures_are_empty))
+                if not bit_stream.pos == len(bit_stream):
+                    raise NotImplementedError("possible segmented input action can not be decoded")
             else:
-                raise NotImplementedError("decoding of multiple tick closures not implemented")
+                raise NotImplementedError("decoding of multiple tick closures not implemented.")
+            
+        if has_synchronizer_action:
+            raise NotImplementedError("decoding of synchronizer actions is not implemented.")
+        
+        if has_heartbeat_requests:
+            raise NotImplementedError("decoding of heartbeat requests is not implemented.")
 
         return cls(has_synchronizer_action, all_tick_closures_are_empty, has_single_tick_closure, has_tick_closures, has_heartbeat_requests, sequence_number, tick_closures)
 

@@ -4,9 +4,12 @@ import socket
 import logging.config
 from typing import Any, Dict, List, Tuple
 from bitstring import BitStream
+from input_action import InputAction
+from input_action_payload import StopWalkingPayload
 from input_action_type import INPUT_ACTION_LOOKUP_TABLE, InputActionType
 
 from message_type import MessageType
+from network_message import NetworkMessage
 
 PROXY_INPUT_PORT = 1234
 FACTORIO_SERVER_PORT = 34197
@@ -192,15 +195,38 @@ if __name__ == "__main__":
         client_address = None
 
         while True:
-            data, address = proxy_socket.recvfrom(1024)
+            original_data, address = proxy_socket.recvfrom(1024)
+            # try:
+                # handle_message(data)
+            # except NotImplementedError as e:
+            #     LOGGER.info(e)
+            # except Exception as e:
+                # LOGGER.error(f"Unexpected Error during decoding. {e}")
             try:
-                handle_message(data)
+                network_message = NetworkMessage.from_bitstream(BitStream(original_data))
+                reconstructed_data = network_message.to_bitstream()
+                reconstructed_data = reconstructed_data.tobytes()
+                if not reconstructed_data == original_data:
+                    LOGGER.error("Reconstruction differs from original")
+                    LOGGER.error(f"Original Message     : {original_data}")
+                    LOGGER.error(f"Reconstructed Message: {reconstructed_data}")
+                    reconstructed_data = original_data
+                else:
+                    try:
+                        network_message.inject_input_action(InputAction(InputActionType.StopWalking, StopWalkingPayload(0)))
+                        reconstructed_data = network_message.to_bitstream()
+                        reconstructed_data = reconstructed_data.tobytes()
+                    except Exception as e:
+                        LOGGER.error(f"Error during injection: {type(e)}, {e}")
             except NotImplementedError as e:
-                LOGGER.info(e)
+                LOGGER.debug(f"Decoding of message not implemented: {e}")
+                reconstructed_data = original_data
             except Exception as e:
-                LOGGER.error(f"Unexpected Error during decoding. {e}")
+                LOGGER.error(f"Error during construction of network message: {e}")
+                LOGGER.error(f"Original Message     : {original_data}")
+                reconstructed_data = original_data
             if address != server_address:
                 client_address = address
-                proxy_socket.sendto(data, server_address)
+                proxy_socket.sendto(reconstructed_data, server_address)
             elif address == server_address and client_address is not None:
-                proxy_socket.sendto(data, client_address)
+                proxy_socket.sendto(reconstructed_data, client_address)

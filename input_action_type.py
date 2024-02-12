@@ -2,6 +2,8 @@ from enum import Enum
 from typing import Any, Dict, Tuple
 from bitstring import BitStream
 
+from direction import Direction
+
 class InputActionType(Enum):
     Nothing = 0
     StopWalking = 1
@@ -260,15 +262,6 @@ def decode_check_crc_heuristic(payload: BitStream) -> Tuple[Dict[str, Any], BitS
 
     return {"crc": crc, "tick_of_crc": tick_of_crc}, payload[payload.pos:]
 
-class Direction(Enum):
-    North = 0
-    NorthEast = 1
-    East = 2
-    SouthEast = 3
-    South = 4
-    SouthWest = 5
-    West = 6
-    NorthWest = 7
 
 def decode_start_walking(payload: BitStream) -> Tuple[Dict[str, Any], BitStream]:
     direction_id = payload.read("uintle8")

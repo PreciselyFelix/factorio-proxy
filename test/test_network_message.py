@@ -1,3 +1,7 @@
+import pytest
+from input_action import InputAction
+from input_action_payload import StopWalkingPayload
+from input_action_type import InputActionType
 from network_message import NetworkMessage
 
 from bitstring import BitStream
@@ -20,3 +24,18 @@ def test_single_tick_closure_server_to_client_heartbeat_transparancy() -> None:
     example_network_message = NetworkMessage.from_bitstream(example_input)
     example_output = example_network_message.to_bitstream()
     assert example_input == example_output
+
+def test_input_action_segment_throws_error() -> None:
+    with pytest.raises(NotImplementedError):
+        example_input = BitStream(bytes.fromhex("270610520000f0120000034a00f62431c2ef12000001860000000000010010000000000000001065b3650000000000"))
+        example_network_message = NetworkMessage.from_bitstream(example_input)
+        example_output = example_network_message.to_bitstream()
+        assert example_input == example_output
+
+def test_stop_walking_injection():
+    example_input = BitStream(bytes.fromhex("07064e7301009f140000024a000abeaa7c9e140000"))
+    example_network_message = NetworkMessage.from_bitstream(example_input)
+    
+    example_input_action = InputAction(InputActionType.StopWalking, StopWalkingPayload(0))
+    example_network_message.inject_input_action(example_input_action)
+    example_output = example_network_message.to_bitstream()
