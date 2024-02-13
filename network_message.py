@@ -1,6 +1,6 @@
 from bitstring import BitStream
 from input_action import InputAction
-from input_action_payload import StopWalkingPayload
+from input_action_payload import EmptyPayload
 from input_action_type import InputActionType
 from message_payload import ClientToServerHeartbeatPayload, MessagePayload, ServerToClientHeartbeatPayload, TransferBlockPayload, TransferBlockRequestPayload
 from message_type import MessageType
@@ -62,7 +62,7 @@ if __name__ == "__main__":
     example_network_message = NetworkMessage.from_bitstream(example_input)
 
     example_input_action = InputAction(
-        InputActionType.StopWalking, StopWalkingPayload(0))
+        InputActionType.StopWalking, 0, EmptyPayload())
     example_network_message.inject_input_action(example_input_action)
     example_output = example_network_message.to_bitstream()
     assert example_input != example_output

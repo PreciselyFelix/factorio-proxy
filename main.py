@@ -4,7 +4,7 @@ import socket
 import logging.config
 from bitstring import BitStream
 from input_action import InputAction
-from input_action_payload import StopWalkingPayload
+from input_action_payload import EmptyPayload
 from input_action_type import InputActionType
 from message_type import MessageType
 
@@ -54,7 +54,7 @@ if __name__ == "__main__":
                     try:
                         if network_message.network_message_type == MessageType.ClientToServerHeartbeat and network_message.message_payload.has_tick_closures and not network_message.message_payload.all_tick_closures_are_empty:
                             network_message.inject_input_action(InputAction(
-                                InputActionType.StopWalking, StopWalkingPayload(0)))
+                                InputActionType.ClearCursor, 0, EmptyPayload()))
                             reconstructed_data = network_message.to_bitstream()
                             reconstructed_data = reconstructed_data.tobytes()
                     except NotImplementedError as e:
