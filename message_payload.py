@@ -5,6 +5,7 @@ from bitstring import BitStream
 from synchronizer_action import SynchronizerAction
 
 from tick_closure import TickClosure
+from utils import pretty_print_object
 
 
 class MessagePayload(ABC):
@@ -15,6 +16,9 @@ class MessagePayload(ABC):
     @abstractmethod
     def to_bitstream(self) -> BitStream:
         pass
+
+    def __str__(self) -> str:
+        return pretty_print_object(self)
 
 
 class TransferBlockRequestPayload(MessagePayload):
@@ -30,6 +34,9 @@ class TransferBlockRequestPayload(MessagePayload):
 
     def to_bitstream(self) -> BitStream:
         return BitStream(self.block_number.to_bytes(4, "little"))
+    
+    def __str__(self) -> str:
+        return super().__str__()
 
 
 class TransferBlockPayload(MessagePayload):
@@ -50,6 +57,9 @@ class TransferBlockPayload(MessagePayload):
         return_stream = BitStream(self.block_number.to_bytes(4, "little"))
         return_stream += BitStream(self.data)
         return return_stream
+    
+    def __str__(self) -> str:
+        return super().__str__()
 
 
 class ServerToClientHeartbeatPayload(MessagePayload):
@@ -131,6 +141,9 @@ class ServerToClientHeartbeatPayload(MessagePayload):
                 return_stream += synchronizer_action.to_bitstream()
         
         return return_stream
+    
+    def __str__(self) -> str:
+        return super().__str__()
 
 
 class ClientToServerHeartbeatPayload(MessagePayload):
@@ -220,7 +233,10 @@ class ClientToServerHeartbeatPayload(MessagePayload):
                 return_stream += synchronizer_action.to_bitstream()
 
         return return_stream
-
+    
+    def __str__(self) -> str:
+        return super().__str__()
+    
 
 if __name__ == "__main__":
     example_input = BitStream(bytes.fromhex(

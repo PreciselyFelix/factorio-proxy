@@ -49,24 +49,25 @@ if __name__ == "__main__":
                     LOGGER.error(f"Original Message     : {original_data}")
                     LOGGER.error(f"Reconstructed Message: {
                                  reconstructed_data}")
+                    LOGGER.error(f"{network_message}")
                     reconstructed_data = original_data
                 else:
                     try:
                         if network_message.network_message_type == MessageType.ClientToServerHeartbeat and network_message.message_payload.has_tick_closures and not network_message.message_payload.all_tick_closures_are_empty:
                             network_message.inject_input_action(InputAction(
-                                InputActionType.ClearCursor, 0, EmptyPayload()))
+                                InputActionType.StopWalking, 0, EmptyPayload()))
                             reconstructed_data = network_message.to_bitstream()
                             reconstructed_data = reconstructed_data.tobytes()
                     except NotImplementedError as e:
                         LOGGER.debug(
                             f"Decoding of message not implemented: {e}")
                     except Exception as e:
-                        LOGGER.error(f"Error during injection: {type(e)}, {e}")
+                        LOGGER.exception(f"Error during injection: {e}")
             except NotImplementedError as e:
                 LOGGER.debug(f"Decoding of message not implemented: {e}")
                 reconstructed_data = original_data
             except Exception as e:
-                LOGGER.error(
+                LOGGER.exception(
                     f"Error during construction of network message: {e}")
                 LOGGER.error(f"Original Message     : {original_data}")
                 reconstructed_data = original_data

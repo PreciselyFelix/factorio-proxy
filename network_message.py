@@ -54,7 +54,10 @@ class NetworkMessage:
     def inject_input_action(self, input_action: InputAction) -> None:
         self.message_payload.tick_closures[0].input_actions.append(
             input_action)
-
+        
+    def __str__(self):
+        return_string = f"{{network_message_type: {self.network_message_type}, message_payload: {self.message_payload}}}"
+        return return_string
 
 if __name__ == "__main__":
     example_input = BitStream(bytes.fromhex(

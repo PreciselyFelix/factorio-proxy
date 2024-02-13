@@ -3,6 +3,7 @@ from typing import List
 from bitstring import BitStream
 
 from input_action import InputAction
+from utils import pretty_print_object
 
 
 class TickClosure:
@@ -30,3 +31,6 @@ class TickClosure:
             for input_action in self.input_actions:
                 return_stream += input_action.to_bitstream()
         return return_stream
+    
+    def __str__(self) -> str:
+        return pretty_print_object(self)
