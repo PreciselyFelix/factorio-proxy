@@ -1,7 +1,7 @@
 from input_action import InputAction
 from input_action.payloads import EmptyPayload
 from input_action.types import InputActionType
-from message_handlers import PassThroughHandler, LoggingHandler,ContinuousInputActionInjectionHandler
+from message_handlers import PassThroughHandler, LoggingHandler,ContinuousInputActionInjectionHandler, InputActionFilterHandler
 from network_message.types import MessageType
 
 from proxy import Proxy
@@ -17,11 +17,12 @@ if __name__ == "__main__":
 
     parser.add_argument(
         "mode",
-        choices=["pass-through", "decode", "inject"],
+        choices=["pass-through", "decode", "inject", "filter"],
         help=(
             "pass-through: Just passes the messages to the server without decoding or modifying them.\n"
             "decode: Tries to decode and log each message before re-encoding and sending it to the server.\n"
-            "inject: Same as decode but also tries to inject a specified input action into each message."
+            "inject: Same as decode but also tries to inject a specified input action into each message.\n"
+            "filter: !EXPERIMENTAL! Same as decode but also tries to filter all instances of the specified input action from each message."
         )
     )
 
@@ -79,6 +80,12 @@ if __name__ == "__main__":
                 parser.error("--message_type is required in injection mode. Must be ClientToServerHeartbeat or ServerToClientHeartbeat.")
             action_to_inject = InputAction(InputActionType[args.input_action_type], 0, EmptyPayload())
             message_handler = ContinuousInputActionInjectionHandler(action_to_inject, MessageType[args.message_type])
+        case "filter":
+            if args.input_action_type is None:
+                parser.error(f"--input_action_type is required in filter mode. Needs to be an exact match for a type defined in input_actions/types.py that accepts an empty payload.")
+            if args.message_type is None:
+                parser.error("--message_type is required in filter mode. Must be ClientToServerHeartbeat or ServerToClientHeartbeat.")
+            message_handler = InputActionFilterHandler(InputActionType[args.input_action_type], MessageType[args.message_type])
 
     proxy = Proxy(message_handler)
     proxy.listen()

@@ -65,3 +65,19 @@ class EmptyPayload(InputActionPayload):
 
     def to_bitstream(self) -> BitStream:
         return BitStream()
+    
+    
+class RotateEntityPayload(InputActionPayload):
+    data: int
+
+    def __init__(self, data: int) -> None:
+        self.data = data
+
+    @classmethod
+    def from_bitstream(cls, bit_stream: BitStream):
+        data = bit_stream.read("uintle8")
+        return cls(data)
+    
+    def to_bitstream(self) -> BitStream:
+        return_stream = BitStream(f"uintle8={self.data}")
+        return return_stream

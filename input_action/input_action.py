@@ -1,5 +1,5 @@
 from bitstring import BitStream
-from input_action.payloads import CheckCRCHeuristicPayload, EmptyPayload, InputActionPayload, StartWalkingPayload
+from input_action.payloads import CheckCRCHeuristicPayload, EmptyPayload, InputActionPayload, StartWalkingPayload, RotateEntityPayload
 from input_action.types import InputActionType
 from utils import pretty_stringify_object
 
@@ -42,6 +42,8 @@ class InputAction:
                 return StartWalkingPayload.from_bitstream(bit_stream)
             case InputActionType.CheckCRCHeuristic:
                 return CheckCRCHeuristicPayload.from_bitstream(bit_stream)
+            case InputActionType.RotateEntity:
+                return RotateEntityPayload.from_bitstream(bit_stream)
             case _:
                 raise NotImplementedError(f"Unsupported input action type: {input_action_type}")
 

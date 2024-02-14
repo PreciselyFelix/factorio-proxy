@@ -1,5 +1,6 @@
 from bitstring import BitStream
 from input_action import InputAction
+from input_action.types import InputActionType
 from network_message.payloads import ClientToServerHeartbeatPayload, MessagePayload, ServerToClientHeartbeatPayload, TransferBlockPayload, TransferBlockRequestPayload
 from network_message.types import MessageType
 from utils import pretty_stringify_object
@@ -53,6 +54,12 @@ class NetworkMessage:
     def inject_input_action(self, input_action: InputAction) -> None:
         self.message_payload.tick_closures[0].input_actions.append(
             input_action)
+        
+    def filter_input_action_type(self, input_action_type: InputActionType) -> None:
+        for tick_closure in self.message_payload.tick_closures:
+            for input_action in tick_closure.input_actions:
+                if input_action.input_action_type == input_action_type:
+                    tick_closure.input_actions.remove(input_action)
         
     def __str__(self):
         return pretty_stringify_object(self)
