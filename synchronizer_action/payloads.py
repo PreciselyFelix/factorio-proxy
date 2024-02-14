@@ -1,11 +1,12 @@
-from abc import ABC, abstractmethod, abstractclassmethod
+from abc import ABC, abstractmethod
 from typing import Optional
 
 from bitstring import BitStream
 
 
 class SynchronizerActionPayload(ABC):
-    @abstractclassmethod
+    @classmethod
+    @abstractmethod
     def from_bitstream(cls, bit_stream: BitStream):
         pass
 

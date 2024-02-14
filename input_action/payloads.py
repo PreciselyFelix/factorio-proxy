@@ -1,4 +1,4 @@
-from abc import ABC, abstractclassmethod, abstractmethod
+from abc import ABC, abstractmethod
 
 from bitstring import BitStream
 
@@ -7,7 +7,8 @@ from utils import pretty_stringify_object
 
 
 class InputActionPayload(ABC):
-    @abstractclassmethod
+    @classmethod
+    @abstractmethod
     def from_bitstream(cls, bit_stream: BitStream):
         pass
 
