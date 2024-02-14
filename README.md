@@ -1,5 +1,46 @@
 # Factorio MITM-Proxy
 Local MITM-Proxy to intercept and modify Factorio network traffic written in Python.
+
+<details>
+    <summary>Table of Contents</summary>
+    <ol>
+        <li>
+            <a href="#description">Description</a>
+        </li>
+        <li>
+            <a href="#getting-started">Getting Started</a>
+            <ul>
+                <li><a href="#installation">Installation</a></li>
+                <li>
+                    <a href="#usage--examples">Usage / Examples</a>
+                    <ul>
+                        <li><a href="#quick-start">Quick Start</a></li>
+                        <li><a href="#show-help">Show help</a></li>
+                        <li><a href="#pass-through">Pass-through</a></li>
+                        <li><a href="#decode">Decode</a></li>
+                        <li><a href="#inject">Inject</a></li>
+                        <li><a href="#experimental-filter">!Experimental! Filter</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </li>
+        <li>
+            <a href="#logging">Logging</a>
+        </li>
+        <li>
+            <a href="#contibuting">Contributing</a>
+            <ul>
+                <li><a href="#adding-network-message-type">Adding Network Message Type</a></li>
+                <li><a href="#adding-input-action-type">Adding Input Action Type</a></li>
+                <li><a href="#adding-message-handler">Adding Message Handler</a></li>
+            </ul>
+        </li>
+        <li>
+            <a href="#references">References</a>
+        </li>
+    </ol>
+</details>
+
 # Description
 This project was created as part of a research paper about reverse engineering written for my university. 
 
