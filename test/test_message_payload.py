@@ -1,4 +1,4 @@
-from message_payload import ClientToServerHeartbeatPayload, TransferBlockPayload, TransferBlockRequestPayload
+from network_message.payloads import ClientToServerHeartbeatPayload, TransferBlockPayload, TransferBlockRequestPayload
 
 from bitstring import BitStream
 

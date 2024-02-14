@@ -1,6 +1,6 @@
 from bitstring import BitStream
-from synchronizer_action_payload import MapDownloadingProgressUpdatePayload, SynchronizerActionPayload
-from synchronizer_action_type import SynchronizerActionType
+from synchronizer_action.payloads import MapDownloadingProgressUpdatePayload, SynchronizerActionPayload
+from synchronizer_action.types import SynchronizerActionType
 
 
 class SynchronizerAction:

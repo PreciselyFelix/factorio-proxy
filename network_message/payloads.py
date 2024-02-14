@@ -5,7 +5,7 @@ from bitstring import BitStream
 from synchronizer_action import SynchronizerAction
 
 from tick_closure import TickClosure
-from utils import pretty_print_object
+from utils import pretty_stringify_object
 
 
 class MessagePayload(ABC):
@@ -18,7 +18,7 @@ class MessagePayload(ABC):
         pass
 
     def __str__(self) -> str:
-        return pretty_print_object(self)
+        return pretty_stringify_object(self)
 
 
 class TransferBlockRequestPayload(MessagePayload):

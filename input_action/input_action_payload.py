@@ -2,7 +2,8 @@ from abc import ABC, abstractclassmethod, abstractmethod
 
 from bitstring import BitStream
 
-from direction import Direction
+from utils.direction import Direction
+from utils import pretty_stringify_object
 
 
 class InputActionPayload(ABC):
@@ -14,6 +15,8 @@ class InputActionPayload(ABC):
     def to_bitstream(self) -> BitStream:
         pass
 
+    def __str__(self) -> str:
+        return pretty_stringify_object(self)
 
 class CheckCRCHeuristicPayload(InputActionPayload):
     crc: int

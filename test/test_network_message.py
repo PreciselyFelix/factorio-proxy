@@ -1,7 +1,7 @@
 import pytest
 from input_action import InputAction
-from input_action_payload import EmptyPayload
-from input_action_type import InputActionType
+from input_action.payloads import EmptyPayload
+from input_action.types import InputActionType
 from network_message import NetworkMessage
 
 from bitstring import BitStream

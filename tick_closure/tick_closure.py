@@ -3,7 +3,7 @@ from typing import List
 from bitstring import BitStream
 
 from input_action import InputAction
-from utils import pretty_print_object
+from utils import pretty_stringify_object
 
 
 class TickClosure:
@@ -33,4 +33,4 @@ class TickClosure:
         return return_stream
     
     def __str__(self) -> str:
-        return pretty_print_object(self)
+        return pretty_stringify_object(self)

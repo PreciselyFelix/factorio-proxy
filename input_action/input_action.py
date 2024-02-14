@@ -1,6 +1,7 @@
 from bitstring import BitStream
-from input_action_payload import CheckCRCHeuristicPayload, EmptyPayload, InputActionPayload, StartWalkingPayload
-from input_action_type import InputActionType
+from input_action.payloads import CheckCRCHeuristicPayload, EmptyPayload, InputActionPayload, StartWalkingPayload
+from input_action.types import InputActionType
+from utils import pretty_stringify_object
 
 
 class InputAction:
@@ -50,3 +51,6 @@ class InputAction:
         return_stream += BitStream(f"uintle8={self.player_index}")
         return_stream += self.input_action_payload.to_bitstream()
         return return_stream
+    
+    def __str__(self) -> str:
+        return pretty_stringify_object(self)

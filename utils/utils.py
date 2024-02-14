@@ -1,5 +1,5 @@
-def pretty_print_object(obj):
-    return_string = "{"
+def pretty_stringify_object(obj):
+    return_string = f"{type(obj).__name__}: {{"
     for key, value in vars(obj).items():
         if type(value) is not type([]):
             return_string += f"{key}: {value}, "

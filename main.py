@@ -4,9 +4,9 @@ import socket
 import logging.config
 from bitstring import BitStream
 from input_action import InputAction
-from input_action_payload import EmptyPayload
-from input_action_type import InputActionType
-from message_type import MessageType
+from input_action.payloads import EmptyPayload
+from input_action.types import InputActionType
+from network_message.types import MessageType
 
 from network_message import NetworkMessage
 
@@ -28,6 +28,10 @@ def setup_logging() -> None:
         queue_handler.listener.start()
         atexit.register(queue_handler.listener.stop)
 
+class ErrorLogWriter():
+    def write(message):
+        LOGGER.error(message)
+
 
 if __name__ == "__main__":
     setup_logging()
@@ -46,16 +50,17 @@ if __name__ == "__main__":
                 reconstructed_data = reconstructed_data.tobytes()
                 if not reconstructed_data == original_data:
                     LOGGER.error("Reconstruction differs from original")
-                    LOGGER.error(f"Original Message     : {original_data}")
-                    LOGGER.error(f"Reconstructed Message: {
-                                 reconstructed_data}")
+                    LOGGER.error(f"Original Message:")
+                    BitStream(original_data).pp(stream=ErrorLogWriter)
+                    LOGGER.error(f"Reconstructed Message:")
+                    BitStream(reconstructed_data).pp(stream=ErrorLogWriter)
                     LOGGER.error(f"{network_message}")
                     reconstructed_data = original_data
                 else:
                     try:
                         if network_message.network_message_type == MessageType.ClientToServerHeartbeat and network_message.message_payload.has_tick_closures and not network_message.message_payload.all_tick_closures_are_empty:
                             network_message.inject_input_action(InputAction(
-                                InputActionType.StopWalking, 0, EmptyPayload()))
+                                InputActionType.DisconnectAllPlayers, 0, EmptyPayload()))
                             reconstructed_data = network_message.to_bitstream()
                             reconstructed_data = reconstructed_data.tobytes()
                     except NotImplementedError as e:
