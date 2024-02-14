@@ -1,10 +1,13 @@
 import atexit
 import json
 import logging.config
+import os
 
 FACTORIO_LOGGER = logging.getLogger("FactorioProxy")
 
 def setup_logging() -> None:
+    if not os.path.exists("logs"):
+        os.makedirs("logs")
     with open("logger_config.json") as f:
         config = json.load(f)
     logging.config.dictConfig(config)
