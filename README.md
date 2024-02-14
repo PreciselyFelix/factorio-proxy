@@ -163,4 +163,5 @@ __Any and all contributions like adding unit tests, expanding message decoding, 
     ```
 
 # References
+- [Factorio](https://factorio.com) by Wube Software
 - [Factorio Dissector](https://github.com/Hornwitser/factorio_dissector) by Hornwitser
