@@ -43,8 +43,7 @@ class InputAction:
             case InputActionType.CheckCRCHeuristic:
                 return CheckCRCHeuristicPayload.from_bitstream(bit_stream)
             case _:
-                raise NotImplementedError(f"Decoding of InputActionType {
-                                          input_action_type} not implemented.")
+                raise NotImplementedError(f"Unsupported input action type: {input_action_type}")
 
     def to_bitstream(self) -> BitStream:
         return_stream = BitStream(f"uintle8={self.input_action_type.value}")

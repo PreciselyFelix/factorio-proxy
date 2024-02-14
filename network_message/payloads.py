@@ -33,7 +33,7 @@ class TransferBlockRequestPayload(MessagePayload):
         return cls(block_number)
 
     def to_bitstream(self) -> BitStream:
-        return BitStream(self.block_number.to_bytes(4, "little"))
+        return BitStream(f"uintle32={self.block_number}")
     
     def __str__(self) -> str:
         return super().__str__()
@@ -54,7 +54,7 @@ class TransferBlockPayload(MessagePayload):
         return cls(block_number, data)
 
     def to_bitstream(self) -> BitStream:
-        return_stream = BitStream(self.block_number.to_bytes(4, "little"))
+        return_stream = BitStream(f"uintle32={self.block_number}")
         return_stream += BitStream(self.data)
         return return_stream
     
@@ -127,7 +127,7 @@ class ServerToClientHeartbeatPayload(MessagePayload):
     def to_bitstream(self) -> BitStream:
         return_stream = BitStream(f"b3=0b000, bool={self.has_synchronizer_action}, bool={self.all_tick_closures_are_empty}, bool={
                                   self.has_single_tick_closure}, bool={self.has_tick_closures}, bool={self.has_heartbeat_requests}")
-        return_stream += BitStream(self.sequence_number.to_bytes(4, "little"))
+        return_stream += BitStream(f"uintle32={self.sequence_number}")
         if self.has_tick_closures:
             if not self.has_single_tick_closure:
                 raise NotImplementedError(
@@ -216,7 +216,7 @@ class ClientToServerHeartbeatPayload(MessagePayload):
     def to_bitstream(self) -> BitStream:
         return_stream = BitStream(f"b3=0b000, bool={self.has_synchronizer_action}, bool={self.all_tick_closures_are_empty}, bool={
                                   self.has_single_tick_closure}, bool={self.has_tick_closures}, bool={self.has_heartbeat_requests}")
-        return_stream += BitStream(self.sequence_number.to_bytes(4, "little"))
+        return_stream += BitStream(f"uintle32={self.sequence_number}")
         if self.has_tick_closures:
             if not self.has_single_tick_closure:
                 return_stream += BitStream(
@@ -236,11 +236,3 @@ class ClientToServerHeartbeatPayload(MessagePayload):
     
     def __str__(self) -> str:
         return super().__str__()
-    
-
-if __name__ == "__main__":
-    example_input = BitStream(bytes.fromhex(
-        "0a3de0500e038e7500008f7500009075000082750000"))
-    payload = ClientToServerHeartbeatPayload.from_bitstream(example_input)
-    example_output = payload.to_bitstream()
-    assert example_input == example_output

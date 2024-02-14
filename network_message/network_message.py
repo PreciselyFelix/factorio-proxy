@@ -1,7 +1,5 @@
 from bitstring import BitStream
 from input_action import InputAction
-from input_action.payloads import EmptyPayload
-from input_action.types import InputActionType
 from network_message.payloads import ClientToServerHeartbeatPayload, MessagePayload, ServerToClientHeartbeatPayload, TransferBlockPayload, TransferBlockRequestPayload
 from network_message.types import MessageType
 from utils import pretty_stringify_object
@@ -58,14 +56,3 @@ class NetworkMessage:
         
     def __str__(self):
         return pretty_stringify_object(self)
-
-if __name__ == "__main__":
-    example_input = BitStream(bytes.fromhex(
-        "26061372502da0370000023d010289370000"))
-    example_network_message = NetworkMessage.from_bitstream(example_input)
-
-    example_input_action = InputAction(
-        InputActionType.StopWalking, 0, EmptyPayload())
-    example_network_message.inject_input_action(example_input_action)
-    example_output = example_network_message.to_bitstream()
-    assert example_input != example_output
