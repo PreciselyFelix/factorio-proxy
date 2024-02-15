@@ -33,6 +33,7 @@ Local MITM-Proxy to intercept and modify Factorio network traffic written in Pyt
                 <li><a href="#adding-network-message-type">Adding Network Message Type</a></li>
                 <li><a href="#adding-input-action-type">Adding Input Action Type</a></li>
                 <li><a href="#adding-message-handler">Adding Message Handler</a></li>
+                <li><a href="#code-smells">Code Smells</a></li>
             </ul>
         </li>
         <li>
@@ -44,7 +45,7 @@ Local MITM-Proxy to intercept and modify Factorio network traffic written in Pyt
 # Description
 This project was created as part of a research paper about reverse engineering written for my university. 
 
-This repository contains the python code necessary to run a man-in-the-middle proxy that can decode and manipulate Factorio network traffic between one client and a server. The proxy currently only supports decoding and re-encoding some of the most common aspects of the Factorio protocol. It supports decoding and logging all messages that pass through it, injecting additional input actions into messages and filtering out existing input actions. The project was built by dissecting the raw network packets using [wireshark](https://github.com/wireshark/wireshark) and the [factorio dissector plugin written by Hornwitser](https://github.com/Hornwitser/factorio_dissector) and then writing partial decoders using the [bitstring](https://github.com/scott-griffiths/bitstring) python module. A text dump of the factorio.pdb using [cvdump.exe](https://github.com/Microsoft/microsoft-pdb/blob/master/cvdump/cvdump.exe) was performed to get the up to date names and ids of fields such as message types. [Ghidra](https://github.com/NationalSecurityAgency/ghidra) was used to decompile factorio.exe to get an understanding of how inner payloads of input actions are parsed.
+This repository contains the Python (Version 3.12) code necessary to run a man-in-the-middle proxy that can decode and manipulate Factorio network traffic between one client and a server. The proxy currently only supports decoding and re-encoding some of the most common aspects of the Factorio protocol. It supports decoding and logging all messages that pass through it, injecting additional input actions into messages and filtering out existing input actions. The project was built by dissecting the raw network packets using [wireshark](https://github.com/wireshark/wireshark) and the [factorio dissector plugin written by Hornwitser](https://github.com/Hornwitser/factorio_dissector) and then writing partial decoders using the [bitstring](https://github.com/scott-griffiths/bitstring) Python module. A text dump of the factorio.pdb using [cvdump.exe](https://github.com/Microsoft/microsoft-pdb/blob/master/cvdump/cvdump.exe) was performed to get the up to date names and ids of fields such as message types. [Ghidra](https://github.com/NationalSecurityAgency/ghidra) was used to decompile factorio.exe to get an understanding of how inner payloads of input actions are parsed.
 
 # Getting Started
 ## Installation
@@ -202,6 +203,13 @@ __Any and all contributions like adding unit tests, expanding message decoding, 
     proxy = Proxy(message_handler)
     proxy.listen()
     ```
+
+## Code Smells
+- Using Python class attributes as type hints for instance attributes
+- Using Exceptions as control flow
+- A lot of duplicated code between `ServerToClientHeartbeatPayload` and `ClientToServerHeartbeatPayload`
+- A lot of duplicated code between the message handlers. Maybe add handlers that can be composed with each other
+
 
 # References
 - [Factorio](https://factorio.com) by Wube Software
