@@ -19,7 +19,7 @@ Local MITM-Proxy to intercept and modify Factorio network traffic written in Pyt
                         <li><a href="#pass-through">Pass-through</a></li>
                         <li><a href="#decode">Decode</a></li>
                         <li><a href="#inject">Inject</a></li>
-                        <li><a href="#experimental-filter">!Experimental! Filter</a></li>
+                        <li><a href="#filter">Filter</a></li>
                     </ul>
                 </li>
             </ul>
@@ -100,13 +100,11 @@ In the current implementation the proxy can only inject input actions that have 
 
 
 
-### !Experimental! Filter
+### Filter
 ```
 python main.py filter --input_action_type=RotateEntity --message_type=ClientToServerHeartbeat
 ```
 Start the proxy with default values and try to remove all `RotateEntity` input actions from all `ClientToServerHeartbeat` messages.
-
-In all tested cases this causes the client and server to become desynced and the server drops the client after being unable to revover.
 
 
 

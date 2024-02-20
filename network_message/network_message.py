@@ -60,6 +60,8 @@ class NetworkMessage:
             for input_action in tick_closure.input_actions:
                 if input_action.input_action_type == input_action_type:
                     tick_closure.input_actions.remove(input_action)
+        if not any([len(tick_closure.input_actions) > 0 for tick_closure in self.message_payload.tick_closures]):
+            self.message_payload.all_tick_closures_are_empty = True
         
     def __str__(self):
         return pretty_stringify_object(self)
